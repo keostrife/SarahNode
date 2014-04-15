@@ -2,31 +2,34 @@ module.exports = suiteManager;
 var fs = require('fs');
 
 function suiteManager(){
+	if(!(this instanceof suiteManager)) return new suiteManager();
+
 	//singleton
 	if(arguments.callee.singletonInstance) return arguments.callee.singletonInstance;
 	else arguments.callee.singletonInstance = this;
 	//shorthand instanciation
-	if(!this instanceof suiteManager) return new suiteManager();
+	
 
 	this.suites = {};
 	this.suiteList = [];
 
 	this.importSuite = function(suite) {
-		if(typeof suite == "object" && suite.constructor && suite.constructor.name == "Suite") {
+		if(typeof suite == "object") {
 			this.suites[suite.name] = suite;
 			this.suiteList.push(suite.name);
-			return;
 		} else if (typeof suite == "string") {
-			fs.readFile('./suites/'+suite, 'utf8', function(err, data){
-				if(!err && typeof data == "function") {
-					var instance = new data();
-					this.suites[instance.name] = instance;
-					this.suiteList.push(instance.name);
-					return;
+			var self = this;
+			fs.exists('./modules/suites/'+suite+'.js', function(exist){
+
+				if(exist) {
+					var instance = require('./suites/'+suite);
+					self.suites[instance.name] = instance;
+					self.suiteList.push(instance.name);
 				}
 			});
+		} else {
+			throw "invalid argument, expect an instance of Suite";
 		}
-		throw "invalid argument, expect an instance of Suite";
 	}
 
 	this.getSuiteByName = function(suiteName) {

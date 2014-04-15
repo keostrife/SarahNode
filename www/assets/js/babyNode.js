@@ -49,6 +49,11 @@ var bN = (function($, config){
 					IO.emit(message, data);
 				}, config.speedThreshold);
 			}
+		},
+		on: function(message, handler) {
+			socket.on(message, function(data){
+				handler(data);
+			});
 		}
 	}
 }(jQuery, __CONF__));

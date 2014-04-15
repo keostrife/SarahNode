@@ -1,6 +1,7 @@
 module.exports = Suite;
 
 function Suite(suiteName){
+	if(!(this instanceof Suite)) return new Suite(suiteName);
 	this.name = suiteName;
 	this.commandList = [];
 	this.aliasList = []; //command alias list
@@ -10,6 +11,7 @@ function Suite(suiteName){
 	this.actions = {};
 	this.responseAlias = {};
 	this.container = null;
+	
 }
 
 Suite.prototype = {

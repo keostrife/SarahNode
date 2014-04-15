@@ -61,8 +61,9 @@
 				}
 			});
 		},
-
-
+		emit: function(socket, message){
+			socket.emit(socket, message);
+		},
 		import: function(pluginNames, options){
 			
 			if(typeof pluginNames == "string"){
