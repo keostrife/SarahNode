@@ -3,6 +3,7 @@ module.exports = Suite;
 function Suite(suiteName){
 	if(!(this instanceof Suite)) return new Suite(suiteName);
 	this.name = suiteName;
+	this.fancyName = "";
 	this.commandList = [];
 	this.aliasList = []; //command alias list
 	this.responseList = [];
@@ -11,7 +12,7 @@ function Suite(suiteName){
 	this.actions = {};
 	this.responseAlias = {};
 	this.container = null;
-	
+	this.commandContent = ""; //cache instance property if u use it
 }
 
 Suite.prototype = {
@@ -50,7 +51,7 @@ Suite.prototype = {
 		}
 
 		//callback
-		if(typeof arguments[arguments.length-1] == "function")arguments[arguments.length-1]();
+		if(typeof arguments[arguments.length-1] == "function")arguments[arguments.length-1].call(this);
 	},
 
 	/*
@@ -65,6 +66,7 @@ Suite.prototype = {
 		>> void
 	*/
 	registerCommandAlias: function(command, alias, force){
+		if(force == "undefined") force = true;
 		if(!arguments.length || typeof command != "string" || typeof alias != "string") {
 			throw 'invalid argument, expect command and alias as string';
 			return;
@@ -80,7 +82,7 @@ Suite.prototype = {
 		if(!this.haveAlias(alias)) this.aliasList.push(alias);
 
 		//callback
-		if(typeof arguments[arguments.length-1] == "function")arguments[arguments.length-1]();
+		if(typeof arguments[arguments.length-1] == "function")arguments[arguments.length-1].call(this);
 	},
 
 	/*
@@ -96,6 +98,7 @@ Suite.prototype = {
 		>> void
 	*/
 	registerAction: function(command, action, force){
+		if(force == "undefined") force = true;
 		if(!arguments.length || typeof command != "string" || typeof action != "function") {
 			throw 'invalid argument, expect command as string and action as function';
 			return;
@@ -104,13 +107,17 @@ Suite.prototype = {
 			return;
 		}
 
+		if(force) this.deleteAction(command);
+
 		//register command if it doesn't exist
 		if(!this.haveCommand(command)) this.registerCommand(command, false);
+
+
 
 		this.commands[command] = action;
 
 		//callback
-		if(typeof arguments[arguments.length-1] == "function" && arguments.length > 2)arguments[arguments.length-1]();
+		if(typeof arguments[arguments.length-1] == "function" && arguments.length > 2)arguments[arguments.length-1].call(this);
 	},
 
 	/*
@@ -132,14 +139,14 @@ Suite.prototype = {
 		if(!this.haveCommand(command)) this.registerCommand(command, false);
 
 
-		if(!this.haveResponseAlias(alias)) {
+		if(!this.haveResponseAlias(resAlias)) {
 			this.responseList.push(resAlias);
 			this.responseAlias[command] = this.responseAlias[command] || [];
 			this.responseAlias[command].push(resAlias);
 		}
 
 		//callback
-		if(typeof arguments[arguments.length-1] == "function" && arguments.length > 2)arguments[arguments.length-1]();
+		if(typeof arguments[arguments.length-1] == "function" && arguments.length > 2)arguments[arguments.length-1].call(this);
 	},
 
 	/*
@@ -151,6 +158,7 @@ Suite.prototype = {
 		>> void
 	*/
 	disgestCommand: function(alias, force){
+		if(force == "undefined") force = true;
 		if(!this.commandAlias[alias]) {
 			if(!force) throw "command alias \""+alias+"\" not found.";
 			return;
@@ -163,7 +171,7 @@ Suite.prototype = {
 		this.commands[command].call(this, this.responseAlias[command]);
 		
 		//callback
-		if(typeof arguments[arguments.length-1] == "function" && arguments.length > 2)arguments[arguments.length-1]();
+		if(typeof arguments[arguments.length-1] == "function" && arguments.length > 2)arguments[arguments.length-1].call(this);
 	},
 
 	/*
@@ -185,7 +193,7 @@ Suite.prototype = {
 
 		this.responseAlias[command] = this.responseAlias[command] || [];
 		this.commands[command].call(this, this.responseAlias[command]);
-		if(typeof cb == "function") cb();
+		if(typeof cb == "function") cb.call(this);
 	},
 
 	/*
@@ -363,6 +371,29 @@ Suite.prototype = {
 				}
 			}
 		}
+	},
+
+	/*
+		Set command subject
+
+		@content (String) -> set the command content
+
+		>> void
+	*/
+	setCommandContent: function(content){
+		this.commandContent = content || "";
+	},
+
+	/*
+		set suite's fancy name
+		
+		@fancy name (String)
+
+		>> void
+	*/
+	setFancyName: function(name){
+		this.fancyName = name;
 	}
+
 
 }

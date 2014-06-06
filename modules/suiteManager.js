@@ -12,11 +12,13 @@ function suiteManager(){
 
 	this.suites = {};
 	this.suiteList = [];
+	this.suiteName = [];
 
 	this.importSuite = function(suite) {
 		if(typeof suite == "object") {
 			this.suites[suite.name] = suite;
 			this.suiteList.push(suite.name);
+			this.suiteName.push(suite.fancyName?suite.fancyName:suite.name);
 		} else if (typeof suite == "string") {
 			var self = this;
 			fs.exists('./modules/suites/'+suite+'.js', function(exist){
@@ -25,6 +27,7 @@ function suiteManager(){
 					var instance = require('./suites/'+suite);
 					self.suites[instance.name] = instance;
 					self.suiteList.push(instance.name);
+					self.suiteName.push(instance.fancyName?instance.fancyName:instance.name);
 				}
 			});
 		} else {
@@ -32,18 +35,24 @@ function suiteManager(){
 		}
 	}
 
+	this.getSuitesName = function(){
+		return this.suiteName;
+	}
+
 	this.getSuiteByName = function(suiteName) {
 		return this.suites[suiteName] && this.suites[suiteName];
 	}
 
-	this.disgestCommandWithSuite = function(command, suiteName, force) {
+	this.disgestCommandWithSuite = function(suiteName, command, commandInput, force) {
 		if(this.suites[suiteName])
-			this.suites[suiteName].disgestCommand(commnand, force);
+			this.suites[suiteName].disgestCommand(command, force);
 	}
 
-	this.disgestCommand = function(command){
-		for(var i = 0, iLen = suiteList.length; i<iLen; i++) 
-			this.suites[suiteList[i]].disgestCommand(command, true);
+	this.disgestCommand = function(command, commandInput){
+		for(var i = 0, iLen = this.suiteList.length; i<iLen; i++) {
+			if(commandInput) this.suites[this.suiteList[i]].setCommandContent(commandInput);
+			this.suites[this.suiteList[i]].disgestCommand(command, true);
+		}
 	}
 
 }
