@@ -1,6 +1,6 @@
 var http = require('http');
 var fs = require('fs');
-global.porn = require(__dirname+'/../porn.js');
+global.porn = require(__dirname+'/../config/porn.js');
 
 var sarah = require("./sarah");
 
