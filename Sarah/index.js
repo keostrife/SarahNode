@@ -1,5 +1,4 @@
 var config = require(__dirname+'/config.js');
-
 //initialize Google Datastore Node.js client library
 const Datastore = require('@google-cloud/datastore');
 const datastore = new Datastore({
@@ -32,7 +31,6 @@ class Sarah {
 		  	else
 		  		resolve(results[0][0].Input);
   		});
-
   	});
   }
 
@@ -49,9 +47,6 @@ class Sarah {
 		  		resolve(results[0][0].Output);
   		});
   	});
-  	
-
-  	
   }
 
   getAliasFromOutput(output) {
@@ -68,9 +63,6 @@ class Sarah {
 		  		resolve(results[0].map(o => o.OutputAlias));
   		});
   	});
-  	
-
-  	
   }
 }
 
